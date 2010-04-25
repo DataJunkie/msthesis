@@ -77,6 +77,7 @@ def get_followers(username, all=True):
     opener = urllib2.build_opener(handler)
     while cursor != 0:
         url = 'http://twitter.com/statuses/followers/%s.json?cursor=%s' % (username, str(cursor))
+        retries = 0
         while True:
             try:
                 data = opener.open(url).read()
@@ -87,10 +88,13 @@ def get_followers(username, all=True):
                 break
             except urllib2.HTTPError, e:
                 action = process_HTTPerror(e.code)
-                print " Error occured: ", str(e.code)
+                print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
-                    return []
+                    return -1   #return failure
                 elif action == -2:
+                    retries += 1    
+                    if retries > 5:
+                        return -1
                     retry()
                 elif action == -3:
                     wait()
@@ -123,9 +127,13 @@ def get_friends(username, all=True):
                 break
             except urllib2.HTTPError, e:
                 action = process_HTTPerror(e.code)
+                print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
-                    return []
+                    return -1   #return failure
                 elif action == -2:
+                    retries += 1
+                    if retries > 5:
+                        return -1
                     retry()
                 elif action == -3:
                     wait()            
