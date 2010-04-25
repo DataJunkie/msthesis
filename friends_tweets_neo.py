@@ -73,7 +73,7 @@ def dump(data):
 
 def main():
     global expanded
-    staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True}
+    staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True, 'pothos': True}
     crawl_deque = deque()
     idx = {}
     #Seed the crawler with an initial user, DEGREE 0
@@ -108,7 +108,7 @@ def main():
             #idx[user['screen_name']] = user['id']     #mark the user as scraped.
             #TO DO: Print user info to file.
         LOG = open("process.log", "a")
-        print >> LOG, "Getting friends and followers for %s." % user
+        print >> LOG, "Getting friends and followers for %s." % user['user']['screen_name']
         LOG.close()
         #Check that the user is not a crawler bomb.
         if user.has_key('friends_count') and user.has_key('followers_count') and \
@@ -132,9 +132,7 @@ def main():
             #if not already_scraped(idx, follower['screen_name']):
                 #user_data = twitter.get_user(follower['screen_name'])
             if len(follower) == 0:
-                print "HERE"
                 continue
-            print "FOLLOWER"
             dump(follower)
             #idx[follower['screen_name']] = follower['id']  #mark user as scraped
             if follower['screen_name'] not in staff:

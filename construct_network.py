@@ -1,11 +1,9 @@
 import networkx as nx
-import re
-import sys
 import pickle
 
 
 def BuildGraph():
-    IN = open("graph.log", "r")
+    IN = open("graph.log.1", "r")
     nodes = {}
     G = nx.DiGraph()
     for line in IN:
@@ -30,12 +28,20 @@ def main():
     for node in nodes:
         OUT.write(node + '\n')
     OUT.close()
-    print "Writing graph to disk..."
     A = nx.to_scipy_sparse_matrix(G)
+    print "Writing master graph to disk as a sparse matrix..."
+    OUT = open("raw.graph", "w")
+    pickle.dump(A, OUT, -1)
+    OUT.close()
+
     C = A.tocsr()
     OUT = open("mygraph.graph","wb")
     pickle.dump(C,OUT,-1)
     OUT.close()
+    OUT = open("raw.graph", "w")
+    pickle.dump(G, OUT, -1)
+    OUT.close()
+
 
 if __name__ == "__main__":
     main()
