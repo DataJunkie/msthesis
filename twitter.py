@@ -17,8 +17,8 @@ import calendar
 import httplib
 import sys
 
-selfuser = "DataJunkie"
-selfpass = "5549829"
+selfuser = ""
+selfpass = ""
 maxtweets = 200
 
 
@@ -57,7 +57,13 @@ def process_HTTPerror(code):
         return -2
     elif code in [400, 403]:
         return -3
-                           
+
+def log(type, code, user, action, url):
+    LOG = open("verbose.log", "a")
+    print >> LOG, '\t'.join([type, str(code), user, action, url])
+    LOG.close()
+    return
+
 
 def get_followers(username, all=True):
     '''
@@ -90,18 +96,24 @@ def get_followers(username, all=True):
                 action = process_HTTPerror(e.code)
                 print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
+                    log("HTTP", str(e.code), username, "FAIL", url)
                     return -1   #return failure
                 elif action == -2:
-                    retries += 1    
+                    retries += 1
+                    log("HTTP", str(e.code), username, "RETRY", url)
                     if retries > 5:
+                        log("HTTP", str(e.code), username, "RETRY AFTER FAIL", url)
                         return -1
                     retry()
                 elif action == -3:
+                    log("HTTP", str(e.code), username, "WAIT", url)
                     wait()
             except urllib2.URLError:
+                log("URL", "NA", username, "RETRY", url)
                 print "Error occurred: URLError"
                 retry() 
             except httplib.BadStatusLine, e:
+                log("BadStatus", "NA", username, "RETRY", url)
                 print "Error occurred: BadStatusLine"
                 retry()
     return followers 
@@ -116,6 +128,7 @@ def get_friends(username, all=True):
     handler = urllib2.HTTPBasicAuthHandler(pw_mgr)
     opener = urllib2.build_opener(handler)
     while cursor != 0:
+        retries = 0
         url = 'http://twitter.com/statuses/friends/%s.json?cursor=%s' % (username, str(cursor))
         while True:
             try:
@@ -129,17 +142,25 @@ def get_friends(username, all=True):
                 action = process_HTTPerror(e.code)
                 print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
+                    log("HTTP", str(e.code), username, "FAIL", url)
                     return -1   #return failure
                 elif action == -2:
+                    log("HTTP", str(e.code), username, "RETRY", url)
                     retries += 1
                     if retries > 5:
+                        log("HTTP", str(e.code), username, "FAIL AFTER RETRY", url)
                         return -1
                     retry()
                 elif action == -3:
+                    log("HTTP", str(e.code), username, "WAIT", url)
                     wait()            
             except urllib2.URLError:
-                retry() 
+                log("URL", "NA", username, "RETRY", url)
+                print "Error occurred: URLError"
+                retry()
             except httplib.BadStatusLine, e:
+                log("BadStatus", "NA", username, "RETRY", url)
+                print "Error occurred: BadStatusLine"
                 retry()
     return friends
 

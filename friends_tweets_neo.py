@@ -108,13 +108,23 @@ def main():
             #idx[user['screen_name']] = user['id']     #mark the user as scraped.
             #TO DO: Print user info to file.
         LOG = open("process.log", "a")
-        print >> LOG, "Getting friends and followers for %s." % user['user']['screen_name']
+        print >> LOG, "Getting friends and followers for %s." % user['screen_name']
         LOG.close()
         #Check that the user is not a crawler bomb.
         if user.has_key('friends_count') and user.has_key('followers_count') and \
             user['friends_count'] + user['followers_count'] > 20000:
+            log("WARN", "NA", username, "SKIP", "NA") 
             continue
         friends, followers = get_ff(user['screen_name'])
+        if friends == -1 or followers == -1:
+            B = open("blacklist", "a")
+            print >> B, user['screen_name']
+            B.close()
+            if friends == -1:
+                print "Getting friends for", user['screen_name'], "failed."
+            if followers == -1:
+                print "Getting followers for", user['screen_name'], "failed."
+            continue
         for friend in friends:
             #if user information has already been scraped, don't do it again.
             #if not already_scraped(idx, friend['screen_name']):
