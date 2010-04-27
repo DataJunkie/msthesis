@@ -3,6 +3,7 @@
 import twitter
 from multiprocessing import Process, Pipe, Queue, Pool
 import time
+from time import strftime
 import pdb
 import urllib2
 from collections import deque
@@ -10,7 +11,7 @@ import simplejson
 from neo4j import NeoService
 import sys
 import neo4j
-import pickle
+import cPickle
 
 
 def get_friends_parallel(conn, username):
@@ -71,9 +72,10 @@ def dump(data):
     OUT.close()
     return
 
+
 def main():
     global expanded
-    staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True, 'pothos': True}
+    staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True, 'pothos': True, 'syou6162': True}
     crawl_deque = deque()
     idx = {}
     #Seed the crawler with an initial user, DEGREE 0
@@ -85,14 +87,32 @@ def main():
     start = time.time()
     deque_size = 0
     expanded = {}
-    while True: 
+    LOG = open("process.log","a")
+    print >> LOG, "%s Twitter Process Started." % twitter.thetime()
+    while True:
+        if len(sys.argv) > 1 and sys.argv[1] == "-r":
+            PICKLE1 = open("queue.dat", "r")
+            crawl_deque = deque()
+            crawl_deque = cPickle.load(PICKLE1)
+            PICKLE1.close()
+            PICKLE2 = open("expanded.dat", "r")
+            expanded = cPickle.load(PICKLE2)
+            PICKLE2.close()
+        #Save state for iteration.
+        #Save queue.
+        PICKLE1 = open("queue.dat", "w")
+        cPickle.dump(crawl_deque, PICKLE1)
+        PICKLE1.close()
+        PICKLE2 = open("expanded.dat", "w")
+        cPickle.dump(expanded, PICKLE2)
+        PICKLE2.close()
         user = crawl_deque.popleft()
         if user == "\n":
             LOG = open("process.log","a")
-            print >> LOG, "Queue now has size %d after degree %d." % (deque_size, current_degree)
+            print >> LOG, "%s Queue now has size %d after degree %d." % (twitter.thetime(), deque_size, current_degree)
             crawl_deque.append("\n")
             end = time.time()
-            print >> LOG, "Time required for degree %d was %s s." % (current_degree, str(end-start))
+            print >> LOG, "%s Time required for degree %d was %s s." % (twitter.thetime(), current_degree, str(end-start))
             LOG.close()
             current_degree += 1
             if current_degree > degree:
@@ -108,12 +128,12 @@ def main():
             #idx[user['screen_name']] = user['id']     #mark the user as scraped.
             #TO DO: Print user info to file.
         LOG = open("process.log", "a")
-        print >> LOG, "Getting friends and followers for %s." % user['screen_name']
+        print >> LOG, "%s Getting friends and followers for %s." % (twitter.thetime(), user['screen_name'])
         LOG.close()
         #Check that the user is not a crawler bomb.
         if user.has_key('friends_count') and user.has_key('followers_count') and \
             user['friends_count'] + user['followers_count'] > 20000:
-            log("WARN", "NA", username, "SKIP", "NA") 
+            twitter.log(twitter.thetime(), "WARN", "NA", user['screen_name'], "SKIP", "NA") 
             continue
         friends, followers = get_ff(user['screen_name'])
         if friends == -1 or followers == -1:
@@ -153,7 +173,7 @@ def main():
             GRAPH.close()
         expanded[user['screen_name']] = True
         OUT = open("index.pickle", "w")
-        pickle.dump(idx, OUT)
+        cPickle.dump(idx, OUT)
         OUT.close()
 
 

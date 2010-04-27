@@ -8,6 +8,7 @@
 __author__ = 'ryan@bytemining.com'
 __version__ = '0.1-devel'
 
+from time import strftime
 import urllib2
 import base64
 import simplejson
@@ -58,9 +59,14 @@ def process_HTTPerror(code):
     elif code in [400, 403]:
         return -3
 
-def log(type, code, user, action, url):
+
+def thetime():
+    return strftime("%Y-%m-%d %H:%M:%S")
+
+
+def log(stamp, type, code, user, action, url):
     LOG = open("verbose.log", "a")
-    print >> LOG, '\t'.join([type, str(code), user, action, url])
+    print >> LOG, '\t'.join([stamp, type, str(code), user, action, url])
     LOG.close()
     return
 
@@ -96,24 +102,24 @@ def get_followers(username, all=True):
                 action = process_HTTPerror(e.code)
                 print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
-                    log("HTTP", str(e.code), username, "FAIL", url)
+                    log(thetime(), "HTTP", str(e.code), username, "FAIL", url)
                     return -1   #return failure
                 elif action == -2:
                     retries += 1
-                    log("HTTP", str(e.code), username, "RETRY", url)
+                    log(thetime(), "HTTP", str(e.code), username, "RETRY", url)
                     if retries > 5:
-                        log("HTTP", str(e.code), username, "RETRY AFTER FAIL", url)
+                        log(thetime(), "HTTP", str(e.code), username, "RETRY AFTER FAIL", url)
                         return -1
                     retry()
                 elif action == -3:
-                    log("HTTP", str(e.code), username, "WAIT", url)
+                    log(thetime(), "HTTP", str(e.code), username, "WAIT", url)
                     wait()
             except urllib2.URLError:
-                log("URL", "NA", username, "RETRY", url)
+                log(thetime(), "URL", "NA", username, "RETRY", url)
                 print "Error occurred: URLError"
                 retry() 
             except httplib.BadStatusLine, e:
-                log("BadStatus", "NA", username, "RETRY", url)
+                log(thetime(), "BadStatus", "NA", username, "RETRY", url)
                 print "Error occurred: BadStatusLine"
                 retry()
     return followers 
@@ -142,24 +148,24 @@ def get_friends(username, all=True):
                 action = process_HTTPerror(e.code)
                 print " Error ", str(e.code), " occurred on ", username, "."
                 if action == -1:
-                    log("HTTP", str(e.code), username, "FAIL", url)
+                    log(thetime(), "HTTP", str(e.code), username, "FAIL", url)
                     return -1   #return failure
                 elif action == -2:
-                    log("HTTP", str(e.code), username, "RETRY", url)
+                    log(thetime(), "HTTP", str(e.code), username, "RETRY", url)
                     retries += 1
                     if retries > 5:
-                        log("HTTP", str(e.code), username, "FAIL AFTER RETRY", url)
+                        log(thetime(), "HTTP", str(e.code), username, "FAIL AFTER RETRY", url)
                         return -1
                     retry()
                 elif action == -3:
-                    log("HTTP", str(e.code), username, "WAIT", url)
+                    log(thetime(), "HTTP", str(e.code), username, "WAIT", url)
                     wait()            
             except urllib2.URLError:
-                log("URL", "NA", username, "RETRY", url)
+                log(thetime(), "URL", "NA", username, "RETRY", url)
                 print "Error occurred: URLError"
                 retry()
             except httplib.BadStatusLine, e:
-                log("BadStatus", "NA", username, "RETRY", url)
+                log(thetime(), "BadStatus", "NA", username, "RETRY", url)
                 print "Error occurred: BadStatusLine"
                 retry()
     return friends
