@@ -73,6 +73,34 @@ def dump(data):
     return
 
 
+def populate_queue(filename, queue):
+    IN = open(filename, 'r')
+    for line in IN:
+        queue.append(simplejson.loads(line.strip()))
+    IN.close()
+    return queue
+
+
+def populate_dict(filename, diction):
+    IN = open(filename, 'r')
+    for line in IN:
+        diction[line.strip()] = True
+    IN.close()
+    return diction
+
+
+def save_state(q, exp):
+    OUT = open("expanded.dat", 'w')
+    for key in exp.keys():
+        print >> OUT, key
+    OUT.close()
+    OUT = open("queue.dat", 'w')
+    for elem in q:
+        print >> OUT, simplejson.dumps(elem)
+    OUT.close()
+    return
+ 
+
 def main():
     global expanded
     staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True, 'pothos': True, 'syou6162': True}
@@ -89,23 +117,18 @@ def main():
     expanded = {}
     LOG = open("process.log","a")
     print >> LOG, "%s Twitter Process Started." % twitter.thetime()
+    LOG.close()
+    if len(sys.argv) > 1 and sys.argv[1] == "-r":
+        LOG = open("process.log", "a")
+        print >> LOG, "%s Resuming from crash." % twitter.thetime()
+        LOG.close()
+        crawl_deque = deque()
+        populate_queue("queue.dat", crawl_deque)
+        populate_dict("expanded.dat", expanded)
     while True:
-        if len(sys.argv) > 1 and sys.argv[1] == "-r":
-            PICKLE1 = open("queue.dat", "r")
-            crawl_deque = deque()
-            crawl_deque = cPickle.load(PICKLE1)
-            PICKLE1.close()
-            PICKLE2 = open("expanded.dat", "r")
-            expanded = cPickle.load(PICKLE2)
-            PICKLE2.close()
         #Save state for iteration.
         #Save queue.
-        PICKLE1 = open("queue.dat", "w")
-        cPickle.dump(crawl_deque, PICKLE1)
-        PICKLE1.close()
-        PICKLE2 = open("expanded.dat", "w")
-        cPickle.dump(expanded, PICKLE2)
-        PICKLE2.close()
+        save_state(crawl_deque, expanded)
         user = crawl_deque.popleft()
         if user == "\n":
             LOG = open("process.log","a")
