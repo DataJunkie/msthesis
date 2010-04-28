@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+'''
+ISSUES/TO DO:
+1) Long jobs silently go into a comatose state:
+    i) SOLUTION: log every single request and whether or not it succeeded.
+2) Distribute using Twisted.
+3) Refactor, refactor, REFACTOR!
+'''
+
 import twitter
 from multiprocessing import Process, Pipe, Queue, Pool
 import time
@@ -8,9 +16,7 @@ import pdb
 import urllib2
 from collections import deque
 import simplejson
-from neo4j import NeoService
 import sys
-import neo4j
 import cPickle
 
 
@@ -155,7 +161,7 @@ def main():
         LOG.close()
         #Check that the user is not a crawler bomb.
         if user.has_key('friends_count') and user.has_key('followers_count') and \
-            user['friends_count'] + user['followers_count'] > 20000:
+            user['friends_count'] + user['followers_count'] > 15000:
             twitter.log(twitter.thetime(), "WARN", "NA", user['screen_name'], "SKIP", "NA") 
             continue
         friends, followers = get_ff(user['screen_name'])
