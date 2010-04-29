@@ -6,6 +6,8 @@ ISSUES/TO DO:
     i) SOLUTION: log every single request and whether or not it succeeded.
 2) Distribute using Twisted.
 3) Refactor, refactor, REFACTOR!
+4) Determine how many API requests are actually being used, and better
+   parallelize (or even distribute) as necessary.
 '''
 
 import twitter
@@ -78,7 +80,10 @@ def dump(data):
     OUT.close()
     return
 
-
+'''
+TO REFACTOR:
+Wrap populate_* into a "load_state" function.
+'''
 def populate_queue(filename, queue):
     IN = open(filename, 'r')
     for line in IN:
@@ -109,10 +114,11 @@ def save_state(q, exp):
 
 def main():
     global expanded
+    #To REFACTOR: Make this a file on disk that is read on start.
     staff = {'al3x': True, 'rsarver': True, 'kevinweil': True, 'jointheflock': True, 'squarecog': True, 'pothos': True, 'syou6162': True}
     crawl_deque = deque()
     idx = {}
-    #Seed the crawler with an initial user, DEGREE 0
+    #Seed the crawler with an initial user, should be set on command line. DEGREE 0
     seed = twitter.get_user("datajunkie")
     crawl_deque.append(seed)
     crawl_deque.append("\n")
