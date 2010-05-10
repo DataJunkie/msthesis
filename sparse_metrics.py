@@ -6,10 +6,14 @@ Created on April 24, 2010
 @contact: rosario@stat.ucla.edu
 '''
 import numpy as np
+from scipy.sparse import lil_matrix
+import sys
+import cProfile
+from bitarray import bitarray
 
 
-def jaccard(matrix):
-    """
+"""
+def jaccard(file, lines):
     function jaccard
 
     PARAMETERS: matrix - incidence or adjacency matrix.
@@ -20,10 +24,90 @@ def jaccard(matrix):
     ALGORITHM: 
     Numerator is the number of elements (rowwise) in common.
     Denominator is  
-    """
-    A = matrix.tolil()
-    row1 = A[1,:].toarray()
-    row2 = A[2,:].toarray()
-    numerator = np.bitwise_and(row1, row2)
-    C[1:].sum(axis=1)
+    J = lil_matrix((lines, lines), dtype = 'float')
+    IN1 = open(file, "r")
+    IN2 = open(file, "r")
+    i = j = 0
+    for line1 in IN1:
+        row1 = line1.strip()
+        IN2.seek(0)
+        j = 0
+        #print i
+        for line2 in IN2:
+            #print j
+            row2 = line2.strip()
+            #intersection = str(long(row1, 2) & long(row2, 2)).count('1')
+            #union = str(long(row1, 2) | long(row2, 2)).count('1')
+            intersection = (bitarray(row1) & bitarray(row2)).count()
+            union = (bitarray(row1) | bitarray(row2)).count()
+            if union != intersection:
+                Jab = float(intersection)/(union - intersection)
+                if Jab > 0:
+                    J[i, j] = Jab
+            j += 1
+        #print end - start
+        sys.exit()
+        i += 1
+    return J
+"""
 
+def generate_jaccard_components(matrix, ifile, nnzfile, axis=1):
+    intersection_matrix = matrix.transpose() * matrix
+    
+    intersection_matrix = intersection_matrix.tocoo()
+    #Print Intersection matrix to disk.
+    print "Getting nonzero values..."
+    data = intersection_matrix.nonzero()
+    if axis == 1:
+        intersection_matrix = intersection_matrix.tocsc()   #csr?
+    elif axis == 2:
+        intersection_matrix = intersection_matrix.tocsc()
+    else:
+        print "Invalid axis specifier."
+        sys.exit(-1)
+    
+    print "Printing nonzero values to disk..."
+    INTERSECTION = open(ifile, "w")
+    print >> INTERSECTION, ''.join(["row","col","value"])
+    for i in xrange(len(data[0])):
+        print >> INTERSECTION, data[0][i], data[1][i], intersection_matrix[data[0][i], data[1][i]]
+        INTERSECTION.flush()
+    INTERSECTION.close()
+    
+    #matrix = matrix.tocsc()
+    #Get the number of non-zero elements in each row (axis = 1) or column (axis = 2)
+    print "Printing nonzero counts to disk..."
+    m, n = matrix.shape
+    NONZEROS = open(nnzfile, "w")
+    if axis == 1:
+        for i in xrange(n):
+            print >> NONZEROS, matrix[i,:].nnz
+            if i % 1000 == 0:
+                NONZEROS.flush()
+                print i
+    elif axis == 2:
+        for i in xrange(n):
+            print >> NONZEROS, matrix[:,i].nnz
+            if i % 1000 == 0:
+                NONZEROS.flush()
+                print i
+    else:
+        print "Invalid axis specifier."
+        sys.exit(-1)
+    NONZEROS.close()
+    #Print to disk.
+
+    #Compute Jaccard in R
+    r = robjects.r
+    nnz = robjects.IntegerVector(nnz)
+    robjects.globalEnv["nnz"] = nnz
+
+    return
+
+
+def logistic(rel,dis,pop,resp):
+    try:
+        log_fit = r.glm("good~relevance+discrimination+popularity",family="binomial")
+    except:
+        sys.exit(0)
+    return filter(lambda x: x != '',str(log_fit.r['coefficients']).split('\n')[2].split(' ')
