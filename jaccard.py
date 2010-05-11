@@ -13,15 +13,15 @@ class InvalidArgumentError(Exception):
         self.expr = expr
         self.msg = msg
 
-def imatrix(matrix, ifile, axis=1):
+def imatrix(matrix, axis=1):
     #Compute the intersection matrix (numerator in Jaccard)
     intersection_matrix = matrix.transpose() * matrix
     return intersection_matrix
 
 
-def numerator(matrix, ifile, axis=1):
+def numerator(matrix, axis=1):
     #The numerator is always printed to disk.
-    return imatrix(matrix, ifile, axis=1)
+    return imatrix(matrix, axis=
 
 
 def output_intersection_matrix(imat, ifile, axis=1, disk=True): 
