@@ -21,12 +21,13 @@ def imatrix(matrix, axis=1):
 
 def numerator(matrix, axis=1):
     #The numerator is always printed to disk.
-    return imatrix(matrix, axis=
+    return imatrix(matrix, axis)
 
 
 def output_intersection_matrix(imat, ifile, axis=1, disk=True): 
     #intersection_matrix = intersection_matrix.tocoo()
     #Get the nonzero entries of the intersection matrix.
+    print "WARNING: For large matrices, this process takes a long time."
     nonzeros = imat.nonzero()
     if axis == 1:
         imat = imat.tocsc()   #csr?
@@ -38,11 +39,16 @@ def output_intersection_matrix(imat, ifile, axis=1, disk=True):
     #or keep them in RAM depending on user preference.
     print "Printing nonzero values of intersection matrix to disk..."
     INTERSECTION = open(ifile, "w")
+    start = time.time()
     for i in xrange(nonzeros(data[0])):
         print >> INTERSECTION, nonzeros[0][i], nonzeros[1][i], imat[nonzeros[0][i], nonzeros[1][i]]
-        INTERSECTION.flush()
+        if (i % 1000 == 0) and (i > 0) == 0:
+            INTERSECTION.flush()
+            if (i == 1000):
+                end = time.time()
+                eta = (((end-start) / 1000) * len(nonzeros))/3600
+                print "Estimated time to completion is %f hours." % eta 
     INTERSECTION.close()
-    #Either return True if successful, or nonzeros (if in RAM).
     return
 
 
