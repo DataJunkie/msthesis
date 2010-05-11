@@ -10,7 +10,7 @@ from scipy.sparse import lil_matrix
 import sys
 import cProfile
 from bitarray import bitarray
-
+import jaccard
 
 """
 def jaccard(file, lines):
@@ -52,11 +52,20 @@ def jaccard(file, lines):
 """
 
 def generate_jaccard_components(matrix, ifile, nnzfile, axis=1):
+    """
+    TO DO:
+    1) Add an on-disk parameter to print certain quantities to disk.
+    2) Estimate the time required and print to the user.
+    """
+    try:
+        import jaccard
+    except:
+        raise NotImplementedError
+
+    #Compute the intersection matrix (numerator in Jaccard)
     intersection_matrix = matrix.transpose() * matrix
-    
-    intersection_matrix = intersection_matrix.tocoo()
-    #Print Intersection matrix to disk.
-    print "Getting nonzero values..."
+    #intersection_matrix = intersection_matrix.tocoo()
+    #Get the nonzero entries of the intersection matrix.
     data = intersection_matrix.nonzero()
     if axis == 1:
         intersection_matrix = intersection_matrix.tocsc()   #csr?
@@ -66,16 +75,18 @@ def generate_jaccard_components(matrix, ifile, nnzfile, axis=1):
         print "Invalid axis specifier."
         sys.exit(-1)
     
-    print "Printing nonzero values to disk..."
+    #Print the nonzero entries of the intersection matrix to disk,
+    #or keep them in RAM depending on user preference.
+    print "Printing nonzero values of intersection matrix  to disk..."
     INTERSECTION = open(ifile, "w")
-    print >> INTERSECTION, ''.join(["row","col","value"])
+    #print >> INTERSECTION, ' '.join(["row","col","value"])
     for i in xrange(len(data[0])):
         print >> INTERSECTION, data[0][i], data[1][i], intersection_matrix[data[0][i], data[1][i]]
         INTERSECTION.flush()
     INTERSECTION.close()
     
-    #matrix = matrix.tocsc()
     #Get the number of non-zero elements in each row (axis = 1) or column (axis = 2)
+    #Print the number of nonzeros to disk or keep in RAM depending on user preference.
     print "Printing nonzero counts to disk..."
     m, n = matrix.shape
     NONZEROS = open(nnzfile, "w")
@@ -105,9 +116,12 @@ def generate_jaccard_components(matrix, ifile, nnzfile, axis=1):
     return
 
 
+
+'''
 def logistic(rel,dis,pop,resp):
     try:
         log_fit = r.glm("good~relevance+discrimination+popularity",family="binomial")
     except:
         sys.exit(0)
     return filter(lambda x: x != '',str(log_fit.r['coefficients']).split('\n')[2].split(' ')
+'''
