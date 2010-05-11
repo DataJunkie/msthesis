@@ -8,6 +8,11 @@ Created on May 10, 2010
 import sys
 
 
+class InvalidArgumentError(Error):
+    def __init__(self, expr, msg):
+        self.expr = expr
+        self.msg = msg
+
 def imatrix(matrix, ifile, axis=1):
     #Compute the intersection matrix (numerator in Jaccard)
     intersection_matrix = matrix.transpose() * matrix
@@ -19,7 +24,7 @@ def numerator(matrix, ifile, axis=1):
     return imatrix(matrix, ifile, axis=1)
 
 
-def output_intersection_matrix(imat, ifile, axis=1, disk=True) 
+def output_intersection_matrix(imat, ifile, axis=1, disk=True): 
     #intersection_matrix = intersection_matrix.tocoo()
     #Get the nonzero entries of the intersection matrix.
     nonzeros = imat.nonzero()
