@@ -8,7 +8,7 @@ Created on May 10, 2010
 import sys
 
 
-class InvalidArgumentError(Error):
+class InvalidArgumentError(Exception):
     def __init__(self, expr, msg):
         self.expr = expr
         self.msg = msg
