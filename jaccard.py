@@ -6,11 +6,10 @@ Created on May 10, 2010
 @contact: rosario@stat.ucla.edu
 '''
 import sys
-
+import time
 
 class InvalidArgumentError(Exception):
-    def __init__(self, expr, msg):
-        self.expr = expr
+    def __init__(self, msg):
         self.msg = msg
 
 def imatrix(matrix, axis=1):
@@ -40,7 +39,7 @@ def output_intersection_matrix(imat, ifile, axis=1, disk=True):
     print "Printing nonzero values of intersection matrix to disk..."
     INTERSECTION = open(ifile, "w")
     start = time.time()
-    for i in xrange(nonzeros(data[0])):
+    for i in xrange(len(nonzeros[0])):
         print >> INTERSECTION, nonzeros[0][i], nonzeros[1][i], imat[nonzeros[0][i], nonzeros[1][i]]
         if (i % 1000 == 0) and (i > 0) == 0:
             INTERSECTION.flush()
