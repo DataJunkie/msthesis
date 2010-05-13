@@ -7,10 +7,12 @@ Created on May 10, 2010
 '''
 import sys
 import time
+import cPickle
 
 class InvalidArgumentError(Exception):
     def __init__(self, msg):
         self.msg = msg
+
 
 def imatrix(matrix, axis=1):
     #Compute the intersection matrix (numerator in Jaccard)
@@ -51,7 +53,7 @@ def output_intersection_matrix(imat, ifile, axis=1, disk=True):
     return
 
 
-def no_nonzeros(matrix, nnzfile, axis=1, disk=True):
+def no_nonzeros(matrix, axis=1, pickle=True, disk=False, nnzfile=""):
     #et the number of non-zero elements in each row (axis = 1) or column (axis = 2)
     #Print the number of nonzeros to disk or keep in RAM depending on user preference.
     print "Printing nonzero counts to disk..."
@@ -81,7 +83,12 @@ def no_nonzeros(matrix, nnzfile, axis=1, disk=True):
             nnz = [matrix[:,i].nnz for i in xrange(n)]
         else:
             raise InvalidArgumentError("Invalid axis specifier.")
-        return nnz
+	if pickle:
+		PICKLE = open("nonzeros.pickle", "w")
+		cPickle.dump(nnz, PICKLE, 2)
+		PICKLE.close()
+	else:
+        	return nnz
     return False
 
 
