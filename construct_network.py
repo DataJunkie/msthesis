@@ -3,7 +3,7 @@ import pickle
 from sparse_metrics import generate_jaccard_components
 
 def BuildGraph():
-    IN = open("graph.log.1", "r")
+    IN = open("graph.log", "r")
     nodes = {}
     G = nx.DiGraph()
     for line in IN:

@@ -56,6 +56,11 @@ def output_intersection_matrix(imat, ifile, axis=1, disk=True):
 def no_nonzeros(matrix, axis=1, pickle=True, disk=False, nnzfile=""):
     #et the number of non-zero elements in each row (axis = 1) or column (axis = 2)
     #Print the number of nonzeros to disk or keep in RAM depending on user preference.
+    print type(matrix)
+    print "Axis: ", axis
+    print "Pickle: ", pickle
+    print "Disk: ", disk
+    print "File: ", nnzfile
     print "Printing nonzero counts to disk..."
     m, n = matrix.shape
     if disk:
@@ -77,8 +82,13 @@ def no_nonzeros(matrix, axis=1, pickle=True, disk=False, nnzfile=""):
         NONZEROS.close()
         return True
     else:
+        print "Will not be printed to ASCII file."
         if axis == 1:
-            nnz = [matrix[i,:].nnz for i in xrange(n)]
+            nnz = []
+            for i in xrange(n):
+                nnz.append(matrix[i,:].nnz)
+                print i
+            #nnz = [matrix[i,:].nnz for i in xrange(n)]
         elif axis == 2:
             nnz = [matrix[:,i].nnz for i in xrange(n)]
         else:
