@@ -9,7 +9,6 @@ import numpy as np
 from scipy.sparse import lil_matrix
 import sys
 import cProfile
-from bitarray import bitarray
 import jaccard
 
 """
