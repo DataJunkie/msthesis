@@ -8,6 +8,7 @@ Created on May 10, 2010
 import sys
 import time
 import cPickle
+import numpy as np
 
 class InvalidArgumentError(Exception):
     def __init__(self, msg):
@@ -84,18 +85,14 @@ def no_nonzeros(matrix, axis=1, pickle=True, disk=False, nnzfile=""):
     else:
         print "Will not be printed to ASCII file."
         if axis == 1:
-            nnz = []
-            for i in xrange(n):
-                nnz.append(matrix[i,:].nnz)
-                print i
-            #nnz = [matrix[i,:].nnz for i in xrange(n)]
+            nnz = [matrix[i,:].nnz for i in xrange(n)]
         elif axis == 2:
             nnz = [matrix[:,i].nnz for i in xrange(n)]
         else:
             raise InvalidArgumentError("Invalid axis specifier.")
 	if pickle:
 		PICKLE = open("nonzeros.pickle", "w")
-		cPickle.dump(nnz, PICKLE, 2)
+		np.save("nonzeros.pickle", nnz)
 		PICKLE.close()
 	else:
         	return nnz

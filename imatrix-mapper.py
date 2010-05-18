@@ -1,5 +1,3 @@
-#!/usr/bin/env Python
-
 import sys
 import cPickle
 import numpy as np
@@ -26,7 +24,7 @@ print "Converting to CSR type."
 imat = imat.tocsr()
 
 OUT = open("intersection.mat", "w")
-for i in xrange(len(nonzeros[0])):
+for i in xrange(400000000,len(nonzeros[0])):
 	print >> OUT, nonzeros[0][i], nonzeros[1][i], imat[nonzeros[0][i], nonzeros[1][i]]
 	if i % 10000000 == 0:
 		print i
