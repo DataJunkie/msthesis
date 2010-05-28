@@ -16,4 +16,5 @@ for line in sys.stdin:
     j = float(val)/(nnz[int(row)] + nnz[int(col)] - int(val))
     if j < math.pow(10, -4):
 		j = 0
-    print >> sys.stdout, row, col, str(j)
+    if j > 0:
+        print >> sys.stdout, row, col, str(j)
