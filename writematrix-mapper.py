@@ -9,8 +9,13 @@ import scipy.sparse
 import numpy as np
 import scipy.io
 
+print >> sys.stderr, "Building graph."
 G = BuildGraph()
-A = nx.to_scipy_sparse_matrix(G)
+print >> sys.stderr, "Converting graph to matrix."
+A = nx.to_scipy_sparse_matrix(G, dtype="bool")
+print >> sys.stderr, "Converting to CSR."
+A = A.tocsr()
+print >> sys.stderr, "Computing transpose."
 intersection_matrix = A * A.transpose()
 intersection_matrix = intersection_matrix.tocsr()
 
