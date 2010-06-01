@@ -13,8 +13,8 @@ print >> sys.stderr, "Building graph."
 G = BuildGraph()
 print >> sys.stderr, "Converting graph to matrix."
 A = nx.to_scipy_sparse_matrix(G, dtype="bool")
-print >> sys.stderr, "Converting to CSR."
-A = A.tocsr()
+print >> sys.stderr, "Converting to CSC."
+A = A.tocsc()
 print >> sys.stderr, "Computing transpose."
 intersection_matrix = A * A.transpose()
 intersection_matrix = intersection_matrix.tocsr()
