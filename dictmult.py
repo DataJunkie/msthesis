@@ -52,7 +52,6 @@ for i in A:
 			product[(i,i)] = len(A[i])
 		else:
         		product[(i,j)] = len(A[i].intersection(A[j]))
-			product[(j,i)] = product[(i,j)]
 	else:
 		pass
         #end = time.time()
