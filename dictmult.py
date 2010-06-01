@@ -38,12 +38,23 @@ edgelist = []
 end = time.time()
 print end-start
 
+Aprime = {}
+cPickle.dump(open("names.mat","w"), names)
+cPickle.dump(open("numbers.mat","w"), numbers)
+names = {}; numbers = {}
 print "Computing AA'"
 product = {}
 for i in A:
     for j in A:
         #start = time.time()
-        product[(i,j)] = len(A[i].intersection(A[j]))
+	if not product.has_key((j,i)):
+		if i == j:
+			product[(i,i)] = len(A[i])
+		else:
+        		product[(i,j)] = len(A[i].intersection(A[j]))
+			product[(j,i)] = product[(i,j)]
+	else:
+		pass
         #end = time.time()
         #print end-start
         #sys.exit(0)
@@ -70,7 +81,10 @@ print "c(",
 for i in A:
     for j in A: #transpose
         start = time.time()
-        product[(i,j)] = len(A[i].intersection(A[j])) #transpose
+	if i == j:
+		product[(i,i)] = len(A[i])
+	else:
+        	product[(i,j)] = len(A[i].intersection(A[j])) #transpose
         end = time.time()
         print str(end-start), ',',
 print ")",
