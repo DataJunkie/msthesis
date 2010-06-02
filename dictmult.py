@@ -1,8 +1,11 @@
-from construct_network import *
+from construct_network import BuildGraph
 import networkx as nx
 import time
 import sys
+import cPickle
+from itertools import combinations
 
+'''
 G = BuildGraph()
 el = nx.to_edgelist(G)
 names = {}
@@ -20,6 +23,10 @@ for e in el:
 el = []
 
 
+cPickle.dump(names, open("names.mat","w"))
+cPickle.dump(numbers, open("numbers.mat","w"))
+
+
 #Construct A and A'
 start = time.time()
 A = {}; Aprime = {}; nnz = [0]*len(numbers)
@@ -34,20 +41,46 @@ for e in edgelist:
         Aprime[e[1]] = set([e[0]])
     nnz[e[0]] += 1
 
+cPickle.dump(A, open("A.pickle","w"))
+sys.exit(0)
+
 edgelist = []
 end = time.time()
 print end-start
 
 Aprime = {}
-cPickle.dump(open("names.mat","w"), names)
-cPickle.dump(open("numbers.mat","w"), numbers)
 names = {}; numbers = {}
 print "Computing AA'"
+'''
+
+A = cPickle.load(open("A.pickle"))
 product = {}
-for i in A:
-    for j in A:
+print len(A.keys())
+
+
+OUT = open("output.out","w")
+j = 0
+start = time.time()
+for i in combinations(A, 2):
+	print >> OUT, i[0], i[1], len(A[i[0]] & A[i[1]])
+	#print j
+	if j % 10000000 == 0:
+		print i
+		end = time.time()
+		print str(end-start)
+		start = time.time()
+	j += 1
+	#print str(end-start)
+
+
+
+'''
+row = 0
+for i in A.iterkeys():
+    start = time.time()
+    for j in A.iterkeys():
         #start = time.time()
-	if not product.has_key((j,i)):
+	if not (j,i) in A:
 		if i == j:
 			product[(i,i)] = len(A[i])
 		else:
@@ -57,8 +90,16 @@ for i in A:
         #end = time.time()
         #print end-start
         #sys.exit(0)
+    row += 1
+    end = time.time()
+    print "Row: ", str(row), str(end-start)
+    sys.exit(0)
 print "Saving matrix to disk..."
-cPickle.dump(open("intersection-100.mat","w"), product)
+cPickle.dump(product, open("intersection-100.mat","w"))
+'''
+
+
+
 '''
 1 0 1
 0 1 0
