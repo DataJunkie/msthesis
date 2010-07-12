@@ -5,7 +5,6 @@ import sys
 import cPickle
 from itertools import combinations
 
-'''
 G = BuildGraph()
 el = nx.to_edgelist(G)
 names = {}
@@ -50,14 +49,12 @@ print end-start
 
 Aprime = {}
 names = {}; numbers = {}
-print "Computing AA'"
-'''
 
 A = cPickle.load(open("A.pickle"))
 product = {}
 print len(A.keys())
 
-
+'''
 OUT = open("output.out","w")
 j = 0
 start = time.time()
@@ -71,7 +68,7 @@ for i in combinations(A, 2):
 		start = time.time()
 	j += 1
 	#print str(end-start)
-
+'''
 
 
 '''
